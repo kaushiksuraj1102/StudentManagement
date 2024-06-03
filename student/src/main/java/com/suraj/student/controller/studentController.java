@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.suraj.student.entity.studentDetails;
+import com.suraj.student.entity.studentMarks;
+import com.suraj.student.model.StudentMarksCollect;
 import com.suraj.student.repository.studentDetailsRepository;
 import com.suraj.student.repository.studentMarksRepository;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,7 +23,7 @@ import java.util.ArrayList;
 
 
 
-@CrossOrigin(origins = "http://localhost:8080")
+@CrossOrigin(origins = "http://localhost:8081")
 @RestController
 @RequestMapping("/api")
 public class studentController {
@@ -47,8 +49,6 @@ public class studentController {
        return new ResponseEntity<>(student,HttpStatus.OK);
    }
    
-   
-   
     @PostMapping("createStudent")
     public ResponseEntity<studentDetails> createStudent(@RequestBody studentDetails details){
         try {
@@ -63,4 +63,32 @@ public class studentController {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PostMapping("/enterMarksForRollNo")
+    public ResponseEntity<studentMarks> updateMarksPerRollNo(@RequestBody studentMarks marks){
+        studentMarks s = new studentMarks();
+        s.setMarks(marks.getMarks());
+        s.setRollno(marks.getRollno());
+        marksRepo.save(s);
+        return new ResponseEntity<>(s,HttpStatus.CREATED);
+    }
+
+    @GetMapping("/top5")
+    public ResponseEntity<List<StudentMarksCollect>> topFive(){
+        List<studentMarks> top5Students = marksRepo.findFirst5ByOrderByMarksDesc();
+        System.out.println(top5Students);
+        List<StudentMarksCollect> top5studentDetails = new ArrayList<>();
+        for (studentMarks s : top5Students) {
+            studentDetails stu = detailsRepo.findByRollno(s.getRollno());
+            StudentMarksCollect toppers = new StudentMarksCollect();
+            toppers.setMarks(s.getMarks());
+            toppers.setName(stu.getName());
+            top5studentDetails.add(toppers);
+        }
+
+        return new ResponseEntity<>(top5studentDetails,HttpStatus.OK);
+    }
+    
+    
+
 }

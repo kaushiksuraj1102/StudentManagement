@@ -17,8 +17,9 @@ import lombok.AllArgsConstructor;
 public class studentMarks {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int studentId;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private int id;
+    private int rollno;
     private int marks;
 
 }
